@@ -46,7 +46,7 @@ int main()
 
 
 
-//Quick sort
+Q2//Quick sort
 #include<stdio.h>
 
 void printArray(int A[],int n){
@@ -118,7 +118,7 @@ int main(){
 
 
 
-//mergesort
+Q3//mergesort
 #include<stdio.h>
 
 void printArray(int A[],int n){
