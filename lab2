@@ -1,0 +1,30 @@
+#include <stdio.h>
+
+// Function to calculate the GCD using the Middle School method and count operations
+int gcdMiddleSchool(int a, int b, int *opCount) {
+    int gcd = 1; // Initialize GCD to 1
+    *opCount = 0; // Initialize operation count to 0
+
+    for (int i = 2; i <= a && i <= b; i++) {
+        // Check if 'i' is a common factor of both 'a' and 'b'
+        while (a % i == 0 && b % i == 0) {
+            gcd *= i; // Multiply 'i' to 'gcd'
+            a /= i; // Divide 'a' by 'i'
+            b /= i; // Divide 'b' by 'i'
+            *opCount += 3; // Two divisions and one multiplication counted as basic operations
+        }
+    }
+    return gcd;
+}
+
+int main() {
+    int num1, num2, opCount;
+    printf("Enter two numbers: ");
+    scanf("%d %d", &num1, &num2);
+
+    int gcd = gcdMiddleSchool(num1, num2, &opCount);
+    printf("GCD of %d and %d is %d\n", num1, num2, gcd);
+    printf("Basic operations performed: %d\n", opCount);
+
+    return 0;
+}
