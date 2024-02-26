@@ -343,19 +343,29 @@ void swap(int* a, int* b) {
     *b = t;
 }
 
-// Partition using the first element as pivot
+// Modified Partition using the first element as pivot
 int partition(int arr[], int low, int high) {
     int pivot = arr[low]; // Pivot is now the first element
-    int i = low + 1; // Start partitioning from the next element
+    int i = low; // 'i' starts at 'low'
+    int j = high + 1; // 'j' starts at 'high + 1'
 
-    for (int j = i; j <= high; j++) {
-        if (arr[j] < pivot) {
-            swap(&arr[i], &arr[j]);
+    while (1) {
+        // Increment i as long as elements are less than pivot
+        do {
             i++;
-        }
+        } while (i <= high && arr[i] < pivot);
+
+        // Decrement j as long as elements are greater than pivot
+        do {
+            j--;
+        } while (arr[j] > pivot);
+
+        if (i >= j) break; // Break if pointers meet
+
+        swap(&arr[i], &arr[j]); // Swap elements at i and j
     }
-    swap(&arr[low], &arr[i - 1]); // Place pivot in the correct position
-    return i - 1; // Return the position of the pivot
+    swap(&arr[low], &arr[j]); // Swap the pivot element with element at j
+    return j; // Return the partition point
 }
 
 void quickSort(int arr[], int low, int high) {
@@ -395,6 +405,7 @@ int main() {
     free(arr);
     return 0;
 }
+
 ==================================================
 newversion:=====================MERGESORT
 #include <stdio.h>
