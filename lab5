@@ -1,156 +1,160 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+// Define a structure for a stack to be used in DFS
 typedef struct {
-    int arr[100];
-    int tos;
+    int items[100];
+    int top;
 } Stack;
 
+// Initialize a stack
+void initStack(Stack* s) {
+    s->top = -1;
+}
+
+// Check if the stack is empty
+int isEmpty(Stack* s) {
+    return s->top == -1;
+}
+
+// Push an element onto the stack
+void push(Stack* s, int element) {
+    s->items[++s->top] = element;
+}
+
+// Pop an element from the stack
+int pop(Stack* s) {
+    if (!isEmpty(s)) {
+        return s->items[s->top--];
+    }
+    return -1; // Return -1 if the stack is empty
+}
+
+// Define a structure for a graph
 typedef struct {
-    int n;
-    int ** adjLists;
-} Graph ;
+    int numVertices;
+    int** adjMatrix;
+} Graph;
 
-void push(Stack *s, int n) {
-    (s->arr)[++(s->tos)] = n;
-}
-
-void insertEnd(int * list, int n) {
-    int i = 0;
-    while (list[i] != -1)
-        i++;
-    list[i] = n;
-    list[i+1] = -1;
-}
-
-
-Graph createDAG(int n) {
-    Graph g;
-    g.n = n;
-    int i,x,j;
-    g.adjLists = (int **) malloc (n * sizeof(int *));
-    for (i = 0; i < n; i++) {
-        g.adjLists[i] = (int *) malloc(n * sizeof(int));
-        g.adjLists[i][0] = -1;
+// Initialize a graph
+Graph* createGraph(int vertices) {
+    Graph* graph = (Graph*)malloc(sizeof(Graph));
+    graph->numVertices = vertices;
+    graph->adjMatrix = (int**)malloc(vertices * sizeof(int*));
+    for (int i = 0; i < vertices; i++) {
+        graph->adjMatrix[i] = (int*)malloc(vertices * sizeof(int));
+        for (int j = 0; j < vertices; j++) {
+            graph->adjMatrix[i][j] = 0;
+        }
     }
-    for(i=0;i<n;i++) {
-		for(j=0;j<n;j++) {
-			if (i==j) 
-				continue;
-			else {
-                printf("Is there an edge from vertex %d to vertex %d ? Type 1 if yes, 0 if no ", i, j);
-                scanf("%d",&x);
-                if (x == 1) 
-                    insertEnd((g.adjLists[i]),j);
-			}
-		}
-	}
-    return g;
+    return graph;
 }
 
-void topoDFS(Graph g, int * visited, Stack * s ,int ind) {
-        
-    visited[ind] = 1;
-    int * list = g.adjLists[ind];
-    int i = 0;
-    while (list[i] != -1) {
-        if (visited[list[i]] == 0)
-            topoDFS(g, visited, s, ind+1);
-        i++;
+// Add edge to the graph
+void addEdge(Graph* graph, int src, int dest) {
+    // Add an edge from src to dest. A new element is added to the adjacency list of src.
+    // The edge is directed, meaning it goes from src to dest
+    graph->adjMatrix[src][dest] = 1; // Considering a directed graph
+}
+
+// DFS function to perform topological sort
+void topologicalSortDFS(Graph* graph, int v, int visited[], Stack* stack) {
+    visited[v] = 1;
+    for (int i = 0; i < graph->numVertices; i++) {
+        if (graph->adjMatrix[v][i] == 1 && !visited[i]) {
+            topologicalSortDFS(graph, i, visited, stack);
+        }
     }
-    push(s,ind);
-    
+    push(stack, v);
 }
 
-int in(int arr[], int n, int x) {
-    int i;
-    for (i = 0; i < n; i++) 
-        if (arr[i] == x)
-            return 1;
+// Function to perform topological sort using DFS
+void dfsTopologicalSort(Graph* graph) {
+    Stack stack;
+    initStack(&stack);
+    int visited[graph->numVertices];
+    for (int i = 0; i < graph->numVertices; i++) {
+        visited[i] = 0;
+    }
+    for (int i = 0; i < graph->numVertices; i++) {
+        if (!visited[i]) {
+            topologicalSortDFS(graph, i, visited, &stack);
+        }
+    }
+    printf("Topological Sort (DFS): ");
+    while (!isEmpty(&stack)) {
+        printf("%d ", pop(&stack));
+    }
+    printf("\n");
+}
+
+// Function to find vertices with no incoming edge
+int findZeroInDegree(int* inDegree, int numVertices, int* visited) {
+    for (int i = 0; i < numVertices; i++) {
+        if (inDegree[i] == 0 && visited[i] == 0) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+// Function to perform topological sort using source removal
+void sourceRemovalTopologicalSort(Graph* graph) {
+    int inDegree[graph->numVertices];
+    int visited[graph->numVertices];
+    for (int i = 0; i < graph->numVertices; i++) {
+        inDegree[i] = 0;
+        visited[i] = 0;
+    }
+
+    // Calculate in-degree of each vertex
+    for (int i = 0; i < graph->numVertices; i++) {
+        for (int j = 0; j < graph->numVertices; j++) {
+            inDegree[j] += graph->adjMatrix[i][j];
+        }
+    }
+
+    printf("Topological Sort (Source Removal): ");
+    for (int i = 0; i < graph->numVertices; i++) {
+        int v = findZeroInDegree(inDegree, graph->numVertices, visited);
+        if (v != -1) {
+            printf("%d ", v);
+            visited[v] = 1;
+            for (int j = 0; j < graph->numVertices; j++) {
+                if (graph->adjMatrix[v][j] == 1) {
+                    inDegree[j]--;
+                }
+            }
+        }
+    }
+    printf("\n");
+}
+
+int main() {
+    int vertices = 6; // Example number of vertices
+    Graph* graph = createGraph(vertices);
+
+    // Example edges in a directed graph
+    addEdge(graph, 5, 2);
+    addEdge(graph, 5, 0);
+    addEdge(graph, 4, 0);
+    addEdge(graph, 4, 1);
+    addEdge(graph, 2, 3);
+    addEdge(graph, 3, 1);
+
+    // Perform topological sort using DFS
+    dfsTopologicalSort(graph);
+
+    // Perform topological sort using Source Removal Technique
+    sourceRemovalTopologicalSort(graph);
+
+    // Free the graph memory
+    for (int i = 0; i < vertices; i++) {
+        free(graph->adjMatrix[i]);
+    }
+    free(graph->adjMatrix);
+    free(graph);
+
     return 0;
 }
 
-void topoSourceRem(Graph * g, int * removed, int * ind) {
-    int i,j, *list, min = 1000;
-    int * degree = (int *) calloc((g->n) , sizeof(int));
-    for(i = 0; i < g -> n; i++) {
-        j = 0;
-        list = g->adjLists[i];
-        if (!in(removed,*ind,i)) {
-            while (list[j] != -1) {
-                if (!in(removed,*ind,list[j]))
-                    degree[list[j]]++;
-                j++;
-            }    
-        }
-        else {
-            degree[i] = -1;
-        }
-    }
-    for (i = 0; i < g -> n; i++) {
-        if (degree[i] == -1)
-            continue;
-        if (degree[i] < min) {
-            min = degree[i];
-            j = i;
-        }
-    }
-    removed[*ind] = j;
-    *ind = *ind + 1;
-    printf("%d ", j);
-
-}
-
-void main() {
-    int n,x,i;
-
-    // printf("Enter number of nodes in graph ");
-    // scanf("%d",&n);
-    // int * visited = (int *) calloc(n,sizeof(int));
-    // int * removed = (int *) calloc(n,sizeof(int));
-    // int ind = 0;
-    // Graph g = createDAG(n);
-
-    // TO AVOID MANUAL INPUT : 
-
-    n = 6;
-    Graph g;
-    g.n = 6;
-    g.adjLists = (int **) malloc (n * sizeof(int *));
-    for (i = 0; i < n; i++) {
-        g.adjLists[i] = (int *) calloc(n , sizeof(int));
-        g.adjLists[i][0] = -1;
-    }
-    g.adjLists[2][0] = 3;
-    g.adjLists[2][1] = -1;
-    g.adjLists[3][0] = 1;
-    g.adjLists[3][1] = -1;
-    g.adjLists[4][0] = 0;
-    g.adjLists[4][1] = 1;
-    g.adjLists[4][2] = -1;
-    g.adjLists[5][0] = 0;
-    g.adjLists[5][1] = 2;
-    g.adjLists[5][2] = -1;
-
-    int visited[6];
-    int removed[6];
-    int ind = 0;
-    for(i=0;i<n;i++)
-        visited[i] = 0; 
-
-    Stack s;
-    s.tos = -1;
-    printf("Topological sort using DFS: ");
-    for (i= 0; i < n ; i++)
-        if (visited[i] == 0)
-            topoDFS(g,visited,&s,i);
-    while (s.tos != -1) 
-        printf("%d ",(s.arr[s.tos--]));
-
-    printf("\nToplogical sort using source removal: ");
-
-    for (i = 0; i < n; i++) 
-        topoSourceRem(&g,removed,&ind);
-    
-    printf("\n");
-}
