@@ -331,6 +331,8 @@ int main() {
     return 0;
 }
 =======================================================
+
+new version:========================QUICK SORT
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
@@ -393,3 +395,74 @@ int main() {
     free(arr);
     return 0;
 }
+==================================================
+newversion:=====================MERGESORT
+#include <stdio.h>
+#include <stdlib.h>
+
+// Function to merge two halves into a sorted data.
+void merge(int arr[], int left[], int right[], int leftCount, int rightCount) {
+    int i = 0, j = 0, k = 0;
+
+    // Merge the left and right arrays
+    while (i < leftCount && j < rightCount) {
+        if (left[i] < right[j]) arr[k++] = left[i++];
+        else arr[k++] = right[j++];
+    }
+    while (i < leftCount) arr[k++] = left[i++];
+    while (j < rightCount) arr[k++] = right[j++];
+}
+
+// Function to copy elements from source to dest
+void copy(int source[], int dest[], int n) {
+    for (int i = 0; i < n; i++) {
+        dest[i] = source[i];
+    }
+}
+
+// Recursive function to sort an array using merge sort
+void mergeSort(int arr[], int n) {
+    int mid, i;
+    if (n < 2) return; // base condition. If the array has less than two element, do nothing.
+
+    mid = n / 2; // find the mid index.
+
+    int *left = (int*)malloc(mid * sizeof(int)); 
+    int *right = (int*)malloc((n - mid) * sizeof(int));
+
+    // Copy the left part and right part into left and right array respectively
+    copy(arr, left, mid);
+    copy(arr + mid, right, n - mid);
+
+    // Recursively sort the left and right parts
+    mergeSort(left, mid);
+    mergeSort(right, n - mid);
+
+    // Merge the left and right array
+    merge(arr, left, right, mid, n - mid);
+    free(left);
+    free(right);
+}
+
+// Function to print the array
+void printArray(int A[], int size) {
+    for (int i = 0; i < size; i++)
+        printf("%d ", A[i]);
+    printf("\n");
+}
+
+// Test the code
+int main() {
+    int arr[] = {12, 11, 13, 5, 6, 7};
+    int arr_size = sizeof(arr) / sizeof(arr[0]);
+
+    printf("Given array is \n");
+    printArray(arr, arr_size);
+
+    mergeSort(arr, arr_size);
+
+    printf("\nSorted array is \n");
+    printArray(arr, arr_size);
+    return 0;
+}
+
