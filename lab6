@@ -330,3 +330,66 @@ int main() {
 
     return 0;
 }
+=======================================================
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+
+void swap(int* a, int* b) {
+    int t = *a;
+    *a = *b;
+    *b = t;
+}
+
+// Partition using the first element as pivot
+int partition(int arr[], int low, int high) {
+    int pivot = arr[low]; // Pivot is now the first element
+    int i = low + 1; // Start partitioning from the next element
+
+    for (int j = i; j <= high; j++) {
+        if (arr[j] < pivot) {
+            swap(&arr[i], &arr[j]);
+            i++;
+        }
+    }
+    swap(&arr[low], &arr[i - 1]); // Place pivot in the correct position
+    return i - 1; // Return the position of the pivot
+}
+
+void quickSort(int arr[], int low, int high) {
+    if (low < high) {
+        int pi = partition(arr, low, high);
+
+        quickSort(arr, low, pi - 1); // Recursively sort the left side of pivot
+        quickSort(arr, pi + 1, high); // Recursively sort the right side of pivot
+    }
+}
+
+// Utility function to print an array
+void printArray(int arr[], int size) {
+    for (int i = 0; i < size; i++)
+        printf("%d ", arr[i]);
+    printf("\n");
+}
+
+// Example usage
+int main() {
+    srand(time(0)); // Initialization, should only be called once.
+    int n = 10; // Example size
+    int* arr = malloc(n * sizeof(int));
+
+    // Generate random numbers
+    for(int i = 0; i < n; i++)
+        arr[i] = rand() % 100; // Random numbers between 0 and 99
+
+    printf("Original array:\n");
+    printArray(arr, n);
+
+    quickSort(arr, 0, n-1);
+
+    printf("Sorted array:\n");
+    printArray(arr, n);
+
+    free(arr);
+    return 0;
+}
