@@ -114,52 +114,41 @@ int main()
 }
 
 ===============================================================================
-Q2
-#include <stdio.h>
-#include <stdlib.h>
+#include<stdio.h>
+#include<stdlib.h>
 
 typedef struct node {
     int key;
-    struct node *left, *right, *parent;
+    struct node *left, *right;
     int height;
 } node;
 
-// Utility function to get the height of the tree
 int height(node *N) {
     if (N == NULL)
         return 0;
     return N->height;
 }
 
-// Utility function to get maximum of two integers
 int max(int a, int b) {
     return (a > b) ? a : b;
 }
 
-// Helper function to create a new node
-node* newnode(int key) {
-    node* node = (struct node*)malloc(sizeof(struct node));
-    node->key = key;
-    node->left = NULL;
-    node->right = NULL;
-    node->parent = NULL; // Initialize parent as NULL
-    node->height = 1; // new node is initially added at leaf
-    return node;
+node* newNode(int key) {
+    node* n = (node*)malloc(sizeof(node));
+    n->key = key;
+    n->left = NULL;
+    n->right = NULL;
+    n->height = 1;  // new node is initially added at leaf
+    return(n);
 }
 
-// A utility function to right rotate subtree rooted with y
-node *rightRotate(node *y) {
+node* rightRotate(node *y) {
     node *x = y->left;
     node *T2 = x->right;
 
     // Perform rotation
     x->right = y;
     y->left = T2;
-
-    // Update parents
-    if (T2 != NULL) T2->parent = y;
-    x->parent = y->parent;
-    y->parent = x;
 
     // Update heights
     y->height = max(height(y->left), height(y->right)) + 1;
@@ -169,19 +158,13 @@ node *rightRotate(node *y) {
     return x;
 }
 
-// A utility function to left rotate subtree rooted with x
-node *leftRotate(node *x) {
+node* leftRotate(node *x) {
     node *y = x->right;
     node *T2 = y->left;
 
     // Perform rotation
     y->left = x;
     x->right = T2;
-
-    // Update parents
-    if (T2 != NULL) T2->parent = x;
-    y->parent = x->parent;
-    x->parent = y;
 
     // Update heights
     x->height = max(height(x->left), height(x->right)) + 1;
@@ -190,15 +173,117 @@ node *leftRotate(node *x) {
     // Return new root
     return y;
 }
+node* minValueNode(node* n) {
+    node* current = n;
+    /* loop down to find the leftmost leaf */
+    while (current->left != NULL)
+        current = current->left;
+    return current;
+}
 
-// Get Balance factor of node N
+node* maxValueNode(node* n) {
+    node* current = n;
+    /* loop down to find the rightmost leaf */
+    while (current->right != NULL)
+        current = current->right;
+    return current;
+}
+
+// Function to find successor
+node* successor(node* root, int key) {
+    node* succ = NULL;
+
+    while (root != NULL) {
+        if (key < root->key) {
+            succ = root;
+            root = root->left;
+        }
+        else if (key > root->key)
+            root = root->right;
+        else {
+            if (root->right != NULL) {
+                succ = minValueNode(root->right);
+            }
+            break;
+        }
+    }
+
+    return succ;
+}
+
+// Function to find predecessor
+node* predecessor(node* root, int key) {
+    node* pred = NULL;
+
+    while (root != NULL) {
+        if (key > root->key) {
+            pred = root;
+            root = root->right;
+        }
+        else if (key < root->key)
+            root = root->left;
+        else {
+            if (root->left != NULL) {
+                pred = maxValueNode(root->left);
+            }
+            break;
+        }
+    }
+
+    return pred;
+}
+
 int getBalance(node *N) {
     if (N == NULL)
         return 0;
     return height(N->left) - height(N->right);
 }
 
-// Recursive function to do preorder traversal of the tree
+node* insert(node* node, int key) {
+    /* 1. Perform the normal BST rotation */
+    if (node == NULL)
+        return(newNode(key));
+
+    if (key < node->key)
+        node->left = insert(node->left, key);
+    else if (key > node->key)
+        node->right = insert(node->right, key);
+    else  // Equal keys not allowed
+        return node;
+
+    /* 2. Update height of this ancestor node */
+    node->height = 1 + max(height(node->left), height(node->right));
+
+    /* 3. Get the balance factor of this ancestor node to check whether
+       this node became unbalanced */
+    int balance = getBalance(node);
+
+    // If this node becomes unbalanced, then there are 4 cases
+
+    // Left Left Case
+    if (balance > 1 && key < node->left->key)
+        return rightRotate(node);
+
+    // Right Right Case
+    if (balance < -1 && key > node->right->key)
+        return leftRotate(node);
+
+    // Left Right Case
+    if (balance > 1 && key > node->left->key) {
+        node->left = leftRotate(node->left);
+        return rightRotate(node);
+    }
+
+    // Right Left Case
+    if (balance < -1 && key < node->right->key) {
+        node->right = rightRotate(node->right);
+        return leftRotate(node);
+    }
+
+    /* return the (unchanged) node pointer */
+    return node;
+}
+
 void preorder(node *root) {
     if (root != NULL) {
         printf("%d ", root->key);
@@ -207,81 +292,33 @@ void preorder(node *root) {
     }
 }
 
-node* insertIteratively(node **root, int key) {
-    // Part 1 - Perform normal BST insert
-    if (*root == NULL) {
-        *root = newnode(key);
-        return *root;
-    }
+// Functions for minValueNode, maxValueNode, successor, and predecessor are correct and remain unchanged
 
-    node *current = *root;
-    node *parent = NULL;
-    while (current != NULL) {
-        parent = current;
-        if (key < current->key)
-            current = current->left;
-        else if (key > current->key)
-            current = current->right;
-        else // Duplicate keys not allowed
-            return *root;
-    }
-
-    node *newNode = newnode(key);
-    newNode->parent = parent; // Set parent of new node
-    if (key < parent->key)
-        parent->left = newNode;
-    else
-        parent->right = newNode;
-
-    // Part 2 - Update the height of the ancestor nodes
-    node *temp = newNode;
-    while (parent != NULL) {
-        parent->height = 1 + max(height(parent->left), height(parent->right));
-
-        int balance = getBalance(parent);
-
-        // If this node becomes unbalanced, then there are 4 cases
-
-        // Left Left Case
-        if (balance > 1 && key < parent->left->key)
-            return rightRotate(parent);
-
-        // Right Right Case
-        if (balance < -1 && key > parent->right->key)
-            return leftRotate(parent);
-
-        // Left Right Case
-        if (balance > 1 && key > parent->left->key) {
-            parent->left = leftRotate(parent->left);
-            return rightRotate(parent);
-        }
-
-        // Right Left Case
-        if (balance < -1 && key < parent->right->key) {
-            parent->right = rightRotate(parent->right);
-            return leftRotate(parent);
-        }
-
-        temp = parent;
-        parent = parent->parent;
-    }
-
-    // Return the (unchanged) node pointer
-    return *root;
-}
-
-// Main function demonstrating iterative insertion
 int main() {
-    node *root = NULL;
-
-    insertIteratively(&root, 10);
-    insertIteratively(&root, 20);
-    insertIteratively(&root, 30);
-    insertIteratively(&root, 40);
-    insertIteratively(&root, 50);
-    insertIteratively(&root, 25);
+    node* root = NULL;
+    root = insert(root, 10);
+    root = insert(root, 20);
+    root = insert(root, 30);
+    root = insert(root, 40);
+    root = insert(root, 50);
+    root = insert(root, 25);
 
     printf("Preorder traversal of the constructed AVL tree is:\n");
     preorder(root);
 
+    int key = 20;
+    node* succ = successor(root, key);
+    node* pred = predecessor(root, key);
+
+    if (succ != NULL)
+        printf("\nSuccessor of %d is %d", key, succ->key);
+    else
+        printf("\nSuccessor of %d does not exist", key);
+
+    if (pred != NULL)
+        printf("\nPredecessor of %d is %d", key, pred->key);
+    else
+        printf("\nPredecessor of %d does not exist", key);
+
     return 0;
+}
