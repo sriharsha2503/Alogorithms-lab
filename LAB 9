@@ -1,43 +1,65 @@
 #include<stdio.h>
-#include<string.h>
-#define MAX 500
-int t[MAX];
-void shifttable(char p[]) {
-    int i,j,m;
-    m=strlen(p);
-    for (i=0;i<MAX;i++)
-      t[i]=m;
-    for (j=0;j<m-1;j++)
-      t[p[j]]=m-1-j;
+#include <stdio.h>
+#include <string.h>
+
+#define MAX 256
+
+int t[MAX]; // shift table
+
+// initialize shift table for pattern p
+void shifttable(const char p[]) {
+    int i, m;
+    m = strlen(p);
+    for (i = 0; i < MAX; i++)
+        t[i] = m;
+    for (i = 0; i < m - 1; i++)
+        t[p[i]] = m - 1 - i;
 }
-int horspool(char src[],char p[]) {
-    int i,j,k,m,n;
-    n=strlen(src);
-    m=strlen(p);
-    i=m-1;
-    while(i<n) {
-        k=0;
-        while((k<m)&&(p[m-1-k]==src[i-k]))
-           k++;
-        if(k==m)
-           return(i-m+1); else
-           i+=t[src[i]];
+
+// search for pattern p in string src using Horspool algorithm
+int horspool(const char src[], const char p[]) {
+    int i, j, k, m, n;
+    n = strlen(src);
+    m = strlen(p);
+    i = m - 1;
+    while (i < n) {
+        j = m - 1;
+        k = 0;
+        while ((j >= 0) && (p[j] == src[i - k])) {
+            j--;
+            k++;
+        }
+        if (j == -1) {
+            // pattern found, return the starting index
+            return (i - m + 1);
+        } else {
+            // shift the pattern by the amount in the shift table
+            i += t[src[i]];
+        }
     }
+    // pattern not found, return -1
     return -1;
 }
+
 int main() {
-    char src[100],p[100];
+    char src[100], p[100];
     int pos;
+
     printf("Enter the text in which pattern is to be searched:\n");
-    gets(src);
+    fgets(src, sizeof(src), stdin); // use fgets instead of gets to prevent buffer overflow
+    src[strcspn(src, "\n")] = '\0'; // remove newline character from the end of src
+
     printf("Enter the pattern to be searched:\n");
-    gets(p);
+    fgets(p, sizeof(p), stdin); // use fgets instead of gets to prevent buffer overflow
+    p[strcspn(p, "\n")] = '\0'; // remove newline character from the end of p
+
     shifttable(p);
-    pos=horspool(src,p);
-    if(pos>=0)
-      printf("Pattern found at index %d",pos); 
+    pos = horspool(src, p);
+
+    if (pos >= 0)
+        printf("Pattern found at index %d\n", pos);
     else
-      printf("Pattern not found");
+        printf("Pattern not found\n");
 
     return 0;
 }
