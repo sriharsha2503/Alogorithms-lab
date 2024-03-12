@@ -65,7 +65,6 @@ int main() {
 }
 
 
-
 #include<stdio.h>
 #include<stdlib.h>
 #include<string.h>
@@ -145,24 +144,24 @@ void print()
 }
 int main() {
     init();
-    insert("lebron");
-    insert("curry");
-    insert("harden");
-    insert("morant");
-    insert("luka");
-    insert("kyrie");
-    insert("durant");
-    insert("paul");
-    insert("westbrook");
-    insert("george");
-    insert("davis");
-    insert("jokic");
-    insert("murray");
-    insert("klay");    
-    insert("Wade");
-    insert("Diangelo");
-    insert("Trae");
-    insert("Giannis");
+    insert("jeffin");
+    insert("jowan");
+    insert("ameen");
+    insert("harsha");
+    insert("anuj");
+    insert("balaji");
+    insert("morvin");
+    insert("abhijeet");
+    insert("daren");
+    insert("sarvagya");
+    insert("singh");
+    insert("sri");
+    insert("shaik");
+    insert("parnav");    
+    insert("sambhav");
+    insert("arjun");
+    insert("ketan");
+    insert("varma");
     print();
     char *key_to_search = "Wade";
     if(search(key_to_search))
