@@ -1,3 +1,5 @@
+bottom approach
+======================================================
 #include<stdio.h>
 #include<stdlib.h>
 
@@ -80,6 +82,85 @@ int main(){
 
 	return 0;
 }
+=======================================================
+topdown approach
+=======================================================
+#include <stdio.h>
+#include <stdlib.h>
+
+void swap(int *a, int *b) {
+    int temp = *a;
+    *a = *b;
+    *b = temp;
+}
+
+void heapify(int heap[], int i, int heapSize) {
+    int largest = i; // Initialize largest as root
+    int left = 2 * i + 1; // left = 2*i + 1
+    int right = 2 * i + 2; // right = 2*i + 2
+
+    // If left child is larger than root
+    if (left < heapSize && heap[left] > heap[largest]) {
+        largest = left;
+    }
+
+    // If right child is larger than largest so far
+    if (right < heapSize && heap[right] > heap[largest]) {
+        largest = right;
+    }
+
+    // If largest is not root
+    if (largest != i) {
+        swap(&heap[i], &heap[largest]);
+
+        // Recursively heapify the affected sub-tree
+        heapify(heap, largest, heapSize);
+    }
+}
+
+void insertHeap(int heap[], int *heapSize, int value) {
+    // Insert the new element at the end of the heap
+    heap[*heapSize] = value;
+    (*heapSize)++;
+
+    // Move up through the heap, swapping with the parent node
+    // until the heap property is restored
+    for (int i = *heapSize - 1; i != 0 && heap[(i - 1) / 2] < heap[i];) {
+        // Swap with the parent
+        swap(&heap[(i - 1) / 2], &heap[i]);
+
+        // Move up to the parent index
+        i = (i - 1) / 2;
+    }
+}
+
+void printHeap(int heap[], int heapSize) {
+    for (int i = 0; i < heapSize; ++i) {
+        printf("%d ", heap[i]);
+    }
+    printf("\n");
+}
+
+int main() {
+    int heap[10]; // Let's assume we'll have at most 10 elements for simplicity
+    int heapSize = 0;
+
+    // List of integers to create a heap from
+    int numbers[] = {3, 1, 6, 5, 2, 4};
+    int n = sizeof(numbers) / sizeof(numbers[0]);
+
+    // Insert elements into the heap using the top-down approach
+    for (int i = 0; i < n; i++) {
+        insertHeap(heap, &heapSize, numbers[i]);
+    }
+
+    // Print the heap
+    printf("The max heap is:\n");
+    printHeap(heap, heapSize);
+
+    return 0;
+}
+
 ========================================================
 #include<stdio.h>
 #include<stdlib.h>
