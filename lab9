@@ -1,4 +1,63 @@
 #include <stdio.h>
+#include <string.h>
+#define MAX_CHAR 256  // Maximum number of characters in the char set
+
+// Function to create the shift table
+void shiftTable(char pattern[], int table[MAX_CHAR]) {
+    int m = strlen(pattern);
+    for (int i = 0; i < MAX_CHAR; i++) {
+        table[i] = m;  // Initialize all shifts with the length of pattern
+    }
+    for (int i = 0; i < m - 1; i++) {
+        table[(unsigned char)pattern[i]] = m - 1 - i;  // Set the shift value for the pattern
+    }
+}
+
+// Horspool's algorithm for string matching
+int horspool(char text[], char pattern[], int* comparisons) {
+    int m = strlen(pattern);
+    int n = strlen(text);
+    int table[MAX_CHAR];
+    *comparisons = 0;  // Reset comparisons count
+
+    shiftTable(pattern, table);  // Preprocess the pattern
+
+    int i = m - 1;  // Position of the rightmost character of the window in T
+    while (i < n) {
+        int k = 0;
+        while (k < m && pattern[m - 1 - k] == text[i - k]) {
+            k++;
+            (*comparisons)++;  // Count each key comparison
+        }
+        if (k == m) {
+            return i - m + 1;  // Match found at position i - m + 1
+        } else {
+            (*comparisons)++;  // Count the comparison that resulted in a mismatch
+            i += table[(unsigned char)text[i]];  // Shift the pattern
+        }
+    }
+    return -1;  // No match found
+}
+
+int main() {
+    char text[] = "THIS IS A TEST TEXT";
+    char pattern[] = "TEST";
+    int comparisons = 0;
+    
+    int pos = horspool(text, pattern, &comparisons);
+    
+    if (pos >= 0) {
+        printf("Pattern found at position: %d\n", pos);
+    } else {
+        printf("Pattern not found.\n");
+    }
+    printf("Number of key comparisons: %d\n", comparisons);
+
+    return 0;
+}
+
+=======================================================
+#include <stdio.h>
 #include <stdlib.h>
 
 #define KEYS_TO_INSERT 50 // Can be changed to 50, 100, 200 as needed
