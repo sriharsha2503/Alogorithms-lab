@@ -1,0 +1,86 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+#define KEYS_TO_INSERT 50 // Can be changed to 50, 100, 200 as needed
+#define TABLE_SIZE 10     // Hash table size
+
+typedef struct {
+    int key;
+    int value; // Placeholder for associated data
+} HashItem;
+
+// Initialize the hash table
+void initHashTable(HashItem** table, int size) {
+    for (int i = 0; i < size; i++) {
+        table[i] = NULL;
+    }
+}
+
+// Simple hash function
+int hash(int key, int size) {
+    return key % size;
+}
+
+// Insert a key into the hash table
+void insert(HashItem** table, int key, int value, int size) {
+    int index = hash(key, size);
+    int originalIndex = index;
+    int i = 1;
+
+    while (table[index] != NULL && i < size) {
+        index = (originalIndex + i) % size; // Linear probing
+        i++;
+    }
+
+    if (i == size) { // Table is full
+        printf("Insertion failed. Table is full.\n");
+        return;
+    }
+
+    HashItem* newItem = (HashItem*)malloc(sizeof(HashItem));
+    newItem->key = key;
+    newItem->value = value;
+    table[index] = newItem;
+}
+
+// Search for a key in the hash table
+int search(HashItem** table, int key, int size, int* comparisons) {
+    int index = hash(key, size);
+    int originalIndex = index;
+    int i = 1;
+
+    *comparisons = 0; // Reset comparison count
+
+    while (table[index] != NULL && i < size) {
+        (*comparisons)++;
+        if (table[index]->key == key) {
+            return index; // Key found
+        }
+        index = (originalIndex + i) % size;
+        i++;
+    }
+
+    (*comparisons)++;
+    return -1; // Key not found
+}
+
+int main() {
+    HashItem* hashTable[TABLE_SIZE];
+    initHashTable(hashTable, TABLE_SIZE);
+
+    // Insert KEYS_TO_INSERT keys into the hash table
+    for (int i = 0; i < KEYS_TO_INSERT; i++) {
+        insert(hashTable, i, i, TABLE_SIZE); // Using key as value for simplicity
+    }
+
+    int comparisons = 0;
+    // Search for a key and count comparisons
+    int keyToSearch = 25; // Example key
+    int foundIndex = search(hashTable, keyToSearch, TABLE_SIZE, &comparisons);
+    printf("Key %d %sfound. Comparisons: %d\n", keyToSearch, foundIndex >= 0 ? "" : "not ", comparisons);
+
+    // Repeat for different table sizes and load factors as needed
+    // Cleanup omitted for brevity
+
+    return 0;
+}
