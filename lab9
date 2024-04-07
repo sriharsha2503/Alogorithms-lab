@@ -57,6 +57,7 @@ int main() {
 }
 
 =======================================================
+Q3 closed hash table.
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -247,3 +248,4 @@ int main(){
 	search(openhash,value,m);
 	return 0;
 }
+===================================================================
