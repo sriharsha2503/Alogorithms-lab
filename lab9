@@ -151,7 +151,7 @@ Q2 open hash table
 
 typedef struct hash
 {	int value;
-	struct hash* nvalue;
+	struct hash* nvalue;    //nvalue is next value.
 }hash;
 
 int opcount = 0;
