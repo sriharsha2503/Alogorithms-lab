@@ -229,7 +229,7 @@ void search(hash* openhash[],int value,int m)
 int main(){
 	int n,m;
 	printf("Enter the value of n:");
-	scanf("%d",&n);                                                //number of entries.
+	scanf("%d",&n);                                                //number of entriesin the input array.
 	printf("Enter the value of m:");
 	scanf("%d",&m);                                                //size of the hash table
 	hash* openhash[m];
