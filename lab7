@@ -322,3 +322,87 @@ int main() {
 
     return 0;
 }
+=============================================
+2,3 tree
+#include <stdio.h>
+#include <stdlib.h>
+
+struct node {
+  int data1;
+  int data2;
+  struct node *left;
+  struct node *middle;
+  struct node *right;
+};
+
+struct node *create_node(int data1, int data2) {
+  struct node *new_node = malloc(sizeof(struct node));
+  new_node->data1 = data1;
+  new_node->data2 = data2;
+  new_node->left = NULL;
+  new_node->middle = NULL;
+  new_node->right = NULL;
+  return new_node;
+}
+
+void insert(struct node **root, int data) {
+  if (*root == NULL) {
+    *root = create_node(data, 0);
+    return;
+  }
+
+  if (data < (*root)->data1) {
+    insert(&(*root)->left, data);
+  } else if (data > (*root)->data1) {
+    if ((*root)->data2 == 0) {
+      (*root)->data2 = data;
+    } else {
+      insert(&(*root)->right, data);
+    }
+  } else {
+    // Duplicate data
+    return;
+  }
+
+  // If the node has three data values, split it into two nodes
+  if ((*root)->data2 != 0) {
+    struct node *new_node = create_node((*root)->data2, 0);
+    new_node->left = (*root)->right;
+    (*root)->right = NULL;
+    (*root)->data2 = 0;
+
+    // Insert the new node into the parent node
+    insert(&(*root)->parent, new_node->data1);
+  }
+}
+
+void search(struct node *root, int data) {
+  if (root == NULL) {
+    printf("Data not found\n");
+    return;
+  }
+
+  if (data < root->data1) {
+    search(root->left, data);
+  } else if (data > root->data1) {
+    search(root->right, data);
+  } else {
+    printf("Data found\n");
+  }
+}
+
+int main() {
+  struct node *root = NULL;
+
+  insert(&root, 10);
+  insert(&root, 20);
+  insert(&root, 30);
+  insert(&root, 40);
+  insert(&root, 50);
+
+  search(root, 30);
+  search(root, 60);
+
+  return 0;
+}
+===========================
